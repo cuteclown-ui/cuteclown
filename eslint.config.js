@@ -10,6 +10,7 @@ export default tseslint.config(
       "instruct/**",
       "docs/plan/**",
       "**/.astro/**",
+      "**/*.vue",
     ],
   },
   eslint.configs.recommended,

@@ -1,24 +1,15 @@
-const tabbableSelector = [
-  "a[href]",
-  "button:not([disabled])",
-  "input:not([disabled])",
-  "select:not([disabled])",
-  "textarea:not([disabled])",
-  "[tabindex]:not([tabindex='-1'])",
-].join(",");
+const tabbableSelector = "a[href],button,input,select,textarea,[tabindex]";
 
 function tabbables(root: HTMLElement): HTMLElement[] {
   return [...root.querySelectorAll<HTMLElement>(tabbableSelector)].filter(
-    (element) => !element.hasAttribute("disabled") && element.tabIndex !== -1,
+    (element) => element.tabIndex >= 0 && !element.hasAttribute("disabled"),
   );
 }
 
 export function createFocusScope(root: HTMLElement): { dispose: () => void } {
   const previous = root.ownerDocument.activeElement;
   const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key !== "Tab") {
-      return;
-    }
+    if (event.key !== "Tab") return;
     const items = tabbables(root);
     const first = items[0];
     const last = items[items.length - 1];
@@ -27,12 +18,10 @@ export function createFocusScope(root: HTMLElement): { dispose: () => void } {
       return;
     }
     const active = root.ownerDocument.activeElement;
-    if (event.shiftKey && (active === first || !root.contains(active))) {
+    const backward = event.shiftKey;
+    if (active === (backward ? first : last) || !root.contains(active)) {
       event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && (active === last || !root.contains(active))) {
-      event.preventDefault();
-      first.focus();
+      (backward ? last : first).focus();
     }
   };
   root.addEventListener("keydown", onKeyDown);
@@ -40,9 +29,7 @@ export function createFocusScope(root: HTMLElement): { dispose: () => void } {
   return {
     dispose() {
       root.removeEventListener("keydown", onKeyDown);
-      if (previous instanceof HTMLElement) {
-        previous.focus();
-      }
+      if (previous instanceof HTMLElement) previous.focus();
     },
   };
 }

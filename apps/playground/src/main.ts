@@ -3,7 +3,10 @@ import {
   createFocusScope,
   createLayerStack,
   createRovingTabIndex,
+  setInert,
 } from "@cuteclown/core";
+import { computeFloatingPosition, resolveResponsivePlacement } from "@cuteclown/core/floating";
+import { createThemeProvider } from "../../../packages/vanilla/src/theme/createThemeProvider.ts";
 import {
   animateSpring,
   createScheduler,
@@ -20,6 +23,8 @@ if (!root) {
 }
 
 root.innerHTML = `
+  <a id="skip" class="cc-skip-link" href="#main">Skip to main content</a>
+  <main id="main">
   <h1>CuteClown playground</h1>
   <p>Exercise springs, focus, and overlays.</p>
   <button id="move" type="button">Move</button>
@@ -31,6 +36,11 @@ root.innerHTML = `
     <button type="button" data-tool="two">Two</button>
     <button type="button" data-tool="three">Three</button>
   </div>
+  <button id="theme" type="button">Use dark theme</button>
+  <p id="anchor-row"><button id="anchor" type="button">Show tip</button></p>
+  <span id="hidden-status" class="cc-visually-hidden">Status ready</span>
+  </main>
+  <div id="tip" role="tooltip" hidden>Tip</div>
   <button id="open" type="button">Open dialog</button>
   <div id="dialog" role="dialog" aria-modal="true" aria-label="Example" hidden>
     <button id="dialog-first" type="button">First</button>
@@ -47,7 +57,11 @@ style.textContent = `
   body { font-family: system-ui, sans-serif; margin: 24px; }
   #sprite { margin: 12px 0; width: 96px; padding: 12px; background: #6e70e8; color: white; }
   #toolbar { display: flex; gap: 8px; margin: 12px 0; }
-  [role="dialog"] { margin-top: 12px; padding: 12px; border: 2px solid #24255a; }
+  [role="dialog"], #tip { margin-top: 12px; padding: 12px; border: 2px solid #24255a; background: white; color: #24255a; }
+  .cc-skip-link { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+  .cc-skip-link:focus { position: static; width: auto; height: auto; clip: auto; }
+  .cc-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+  #tip { position: fixed; margin: 0; }
 `;
 document.head.append(style);
 
@@ -57,6 +71,10 @@ const move = document.querySelector<HTMLButtonElement>("#move");
 const announce = document.querySelector<HTMLButtonElement>("#announce");
 const dialog = document.querySelector<HTMLElement>("#dialog");
 const nestedDialog = document.querySelector<HTMLElement>("#nested-dialog");
+const themeButton = document.querySelector<HTMLButtonElement>("#theme");
+const anchor = document.querySelector<HTMLButtonElement>("#anchor");
+const tip = document.querySelector<HTMLElement>("#tip");
+const page = document.querySelector<HTMLElement>("#main");
 const open = document.querySelector<HTMLButtonElement>("#open");
 const nested = document.querySelector<HTMLButtonElement>("#nested");
 const dialogLast = document.querySelector<HTMLButtonElement>("#dialog-last");
@@ -68,6 +86,10 @@ if (
   !number ||
   !move ||
   !announce ||
+  !themeButton ||
+  !anchor ||
+  !tip ||
+  !page ||
   !dialog ||
   !nestedDialog ||
   !open ||
@@ -130,14 +152,40 @@ announce.addEventListener("click", () => {
 let dialogScope: { dispose: () => void } | undefined;
 let nestedScope: { dispose: () => void } | undefined;
 
+const theme = createThemeProvider(document.documentElement);
+themeButton.addEventListener("click", () => {
+  const next = theme.getState().theme === "dark" ? "light" : "dark";
+  theme.set({ theme: next, motion: "full" });
+  themeButton.textContent = next === "dark" ? "Use light theme" : "Use dark theme";
+});
+
+anchor.addEventListener("click", () => {
+  tip.hidden = false;
+  const rect = anchor.getBoundingClientRect();
+  const responsive = resolveResponsivePlacement(window.innerWidth, "top");
+  const placed = computeFloatingPosition({
+    anchor: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+    floating: { width: responsive.sheet ? window.innerWidth : 160, height: 48 },
+    viewport: { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight },
+    placement: responsive.placement,
+  });
+  tip.dataset.placement = placed.placement;
+  tip.dataset.sheet = String(responsive.sheet);
+  tip.style.left = responsive.sheet ? "0px" : `${placed.x}px`;
+  tip.style.top = `${placed.y}px`;
+  tip.style.width = responsive.sheet ? "100%" : "160px";
+});
+
 open.addEventListener("click", () => {
   dialog.hidden = false;
+  setInert(page, true);
   dialogScope = createFocusScope(dialog);
   stack.push({
     id: "dialog",
     element: dialog,
     onDismiss() {
       dialog.hidden = true;
+      setInert(page, false);
       dialogScope?.dispose();
       dialogScope = undefined;
     },

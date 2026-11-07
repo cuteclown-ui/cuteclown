@@ -1,0 +1,43 @@
+@layer cc.components {
+  .cc-box {
+    display: block;
+  }
+
+  .cc-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .cc-inline {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .cc-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .cc-container {
+    inline-size: min(100%, 72rem);
+    margin-inline: auto;
+  }
+
+  .cc-skip-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .cc-skip-link:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+  }
+}

@@ -14,7 +14,8 @@
     "./tooltip.css": "./src/components/tooltip.css",
     "./bento.css": "./src/components/bento.css",
     "./stat-tile.css": "./src/components/stat-tile.css",
-    "./stale-badge.css": "./src/components/stale-badge.css"
+    "./stale-badge.css": "./src/components/stale-badge.css",
+    "./layout.css": "./src/components/layout.css"
   },
   "files": [
     "dist",

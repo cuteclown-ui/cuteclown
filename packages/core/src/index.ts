@@ -1,9 +1,15 @@
+export { skipLinkProps } from "./a11y/skipLink.ts";
+export { visuallyHiddenStyle } from "./a11y/visuallyHidden.ts";
 export { createFocusScope } from "./focus/FocusScope.ts";
 export { createRovingTabIndex } from "./focus/rovingTabIndex.ts";
 export { createId, resetIds } from "./ids.ts";
+export { bindEscape } from "./layer/escape.ts";
+export { setInert } from "./layer/inert.ts";
+export { bindOutsideClick } from "./layer/outsideClick.ts";
 export { createLayerStack } from "./layer/stack.ts";
 export type { Layer } from "./layer/stack.ts";
 export { createAnnouncer } from "./live/announcer.ts";
+export type { Politeness } from "./live/announcer.ts";
 export { bindChild } from "./machine/children.ts";
 export { createMachine } from "./machine/createMachine.ts";
 export type { MachineEvent } from "./machine/createMachine.ts";

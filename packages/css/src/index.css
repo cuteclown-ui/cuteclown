@@ -18,6 +18,7 @@
 @import "./utilities/fluid-type.css";
 @import "./utilities/perf.css";
 @import "./utilities/will-change.css";
+@import "./components/layout.css";
 @import "./components/card.css";
 @import "./components/button.css";
 @import "./components/chip.css";

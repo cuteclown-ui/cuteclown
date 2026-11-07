@@ -68,19 +68,35 @@ function checkSizes() {
     process.stdout.write("size check: no dist output, skipping\n");
     return;
   }
-  const motionBundle = join(root, "packages/motion/dist/index.js");
-  if (!existsSync(motionBundle)) {
-    process.stdout.write(`size check: dist present (${dists.length}), motion bundle not built\n`);
+  const bundles = [
+    ["packages/motion/dist/index.js", budgets.motionGzip, "motion"],
+    ["packages/core/dist/index.js", budgets.coreGzip, "core"],
+    ["packages/core/dist/floating.js", budgets.coreGzip, "core floating"],
+  ];
+  const failures = [];
+  let checked = 0;
+  for (const [rel, limit, name] of bundles) {
+    const file = join(root, rel);
+    if (!existsSync(file)) {
+      continue;
+    }
+    checked += 1;
+    const size = gzipByteLength(readFileSync(file));
+    const failure = budgetFailure(size, limit, name);
+    if (failure) {
+      failures.push(failure);
+    } else {
+      process.stdout.write(`size check: ${name} gzip ${size} within ${limit}\n`);
+    }
+  }
+  if (checked === 0) {
+    process.stdout.write(`size check: dist present (${dists.length}), bundles not built\n`);
     return;
   }
-  const size = gzipByteLength(readFileSync(motionBundle));
-  const failure = budgetFailure(size, budgets.motionGzip, "motion");
-  if (failure) {
-    process.stderr.write(`${failure}\n`);
+  if (failures.length > 0) {
+    process.stderr.write(`${failures.join("\n")}\n`);
     process.exitCode = 1;
-    return;
   }
-  process.stdout.write(`size check: motion gzip ${size} within ${budgets.motionGzip}\n`);
 }
 
 const entry = process.argv[1];

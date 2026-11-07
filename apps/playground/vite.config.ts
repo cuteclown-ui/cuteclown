@@ -7,6 +7,9 @@ export default defineConfig({
       "@cuteclown/motion": fileURLToPath(
         new URL("../../packages/motion/src/index.ts", import.meta.url),
       ),
+      "@cuteclown/core/floating": fileURLToPath(
+        new URL("../../packages/core/src/floating/index.ts", import.meta.url),
+      ),
       "@cuteclown/core": fileURLToPath(
         new URL("../../packages/core/src/index.ts", import.meta.url),
       ),

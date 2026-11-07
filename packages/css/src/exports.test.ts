@@ -13,6 +13,7 @@ test("package exports cover the bundle and Phase 1 component styles", () => {
       "./button.css",
       "./card.css",
       "./chip.css",
+      "./layout.css",
       "./progress.css",
       "./stale-badge.css",
       "./stat-tile.css",

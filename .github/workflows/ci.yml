@@ -43,4 +43,5 @@ jobs:
       - name: Size check
         run: |
           pnpm --filter @cuteclown/motion build
+          pnpm --filter @cuteclown/core build
           pnpm check:size

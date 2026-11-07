@@ -1,10 +1,12 @@
 import { expect, test } from "vitest";
 import * as core from "./index.ts";
 
-test("core exports the machine, focus, live region, and layer stack", () => {
+test("core exports machines, focus, floating, and layer helpers", () => {
   expect(Object.keys(core).sort()).toEqual(
     [
       "bindChild",
+      "bindEscape",
+      "bindOutsideClick",
       "bindStateEffects",
       "createAnnouncer",
       "createFocusScope",
@@ -15,7 +17,10 @@ test("core exports the machine, focus, live region, and layer stack", () => {
       "createSnapshot",
       "mergeProps",
       "resetIds",
+      "setInert",
+      "skipLinkProps",
       "startTimer",
+      "visuallyHiddenStyle",
     ].sort(),
   );
 });
